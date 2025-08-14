@@ -38,14 +38,14 @@ export const CometChatMessages = (props: MessagesViewProps) => {
     onHeaderClicked,
     onThreadRepliesClick,
     showComposer,
-    onBack = () => {},
-    onSearchClicked = () => {},
+    onBack = () => { },
+    onSearchClicked = () => { },
     goToMessageId,
     searchKeyword,
   } = props;
   const [showComposerState, setShowComposerState] = useState<boolean | undefined>(showComposer);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const { appState,setAppState } = useContext(AppContext);
+  const { appState, setAppState } = useContext(AppContext);
 
   const chatFeaturesRef = useRef(chatFeatures);
   useEffect(() => {
@@ -125,11 +125,11 @@ export const CometChatMessages = (props: MessagesViewProps) => {
     if (group) {
       return chatFeaturesRef.current && chatFeaturesRef.current.deeperUserEngagement?.groupInfo
         ? onHeaderClicked()
-        : () => {};
+        : () => { };
     } else if (user) {
       return chatFeaturesRef.current && chatFeaturesRef.current.deeperUserEngagement?.userInfo
         ? onHeaderClicked()
-        : () => {};
+        : () => { };
     }
   };
 
@@ -146,16 +146,25 @@ export const CometChatMessages = (props: MessagesViewProps) => {
         message,
         group
       );
-    const myView: any = new CometChatActionsIcon({
-      id: "forward-message",
-      title: "Chuyển tiếp",
-      iconURL: "./forward.svg",
-      onClick: () => {
-        setAppState({ type: 'UpdateShowForwardModal', payload:  !appState.showForwardModal})
-        setAppState({ type: 'UpdateForwardMessageContent', payload: message})
-      },
-    });
-    defaultOptions.push(myView);
+    const messateType = message.getType()
+    if (
+      messateType === CometChat.MESSAGE_TYPE.IMAGE ||
+      messateType === CometChat.MESSAGE_TYPE.AUDIO ||
+      messateType === CometChat.MESSAGE_TYPE.VIDEO ||
+      messateType === CometChat.MESSAGE_TYPE.FILE ||
+      messateType === CometChat.MESSAGE_TYPE.TEXT
+    ) {
+      const myView: any = new CometChatActionsIcon({
+        id: "forward-message",
+        title: "Chuyển tiếp",
+        iconURL: "./forward.svg",
+        onClick: () => {
+          setAppState({ type: 'UpdateShowForwardModal', payload: !appState.showForwardModal })
+          setAppState({ type: 'UpdateForwardMessageContent', payload: message })
+        },
+      });
+      defaultOptions.push(myView);
+    }
     return defaultOptions;
   };
 

@@ -33,29 +33,29 @@ CometChatUIKit.init(uiKitSettings)?.then(() => {
 
   CometChatUIKit.getLoggedinUser().then((user: CometChat.User | null) => {
     CometChatLocalize.init({
-          language: "vi-VN",
-          fallbackLanguage: "en-US",
-          translationsForLanguage: {
-            "vi-VN": Vi_vn,
-            "en-US": En_us,
-          },
-          disableAutoDetection: false,
-          disableDateTimeLocalization: false,
-          timezone: "Asia/Ho_Chi_Minh",
-          calendarObject: new CalendarObject({
-            today: "[Hôm nay lúc] hh:mm A",
-            yesterday: "[Hôm qua lúc] hh:mm A",
-            lastWeek: "[Tuần trước] dddd",
-            otherDays: "DD MMM YYYY, hh:mm A",
-            relativeTime: {
-              minute: "%d phút trước",
-              minutes: "%d phút trước",
-              hour: "%d giờ trước",
-              hours: "%d giờ trước",
-            },
-          }),
-          missingKeyHandler: (key) => `🔍 Missing translation for: ${key}`,
-        });
+      language: "vi-VN",
+      fallbackLanguage: "en-US",
+      translationsForLanguage: {
+        "vi-VN": Vi_vn,
+        "en-US": En_us,
+      },
+      disableAutoDetection: false,
+      disableDateTimeLocalization: false,
+      timezone: "Asia/Ho_Chi_Minh",
+      calendarObject: new CalendarObject({
+        today: "[Hôm nay lúc] hh:mm A",
+        yesterday: "[yesterday] hh:mm A",
+        lastWeek: "[Tuần trước] dddd",
+        otherDays: "DD MMM YYYY, hh:mm A",
+        relativeTime: {
+          minute: "%d phút trước",
+          minutes: "%d phút trước",
+          hour: "%d giờ trước",
+          hours: "%d giờ trước",
+        },
+      }),
+      missingKeyHandler: (key) => `🔍 Missing translation for: ${key}`,
+    });
     if (!user) {
       CometChatUIKit.login(UID)
         .then((loggedUser: CometChat.User) => {
