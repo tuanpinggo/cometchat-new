@@ -10,13 +10,10 @@ import {
   CometChatActionsIcon,
 } from '@cometchat/chat-uikit-react';
 import '../../styles/CometChatMessages/CometChatMessages.css';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { CometChat } from '@cometchat/chat-sdk-javascript';
 import { useCometChatContext } from '../../context/CometChatContext';
 import { AppContext } from '../../context/AppContext';
-import { ForwardIcon } from 'lucide-react';
-import { ForwardMessageModal } from './ForwardMessageModal';
-
 interface MessagesViewProps {
   user?: CometChat.User;
   group?: CometChat.Group;
@@ -159,8 +156,9 @@ export const CometChatMessages = (props: MessagesViewProps) => {
         title: "Chuyển tiếp",
         iconURL: "./forward.svg",
         onClick: () => {
-          setAppState({ type: 'UpdateShowForwardModal', payload: !appState.showForwardModal })
+          setAppState({ type: 'UpdateShowForwardModal', payload: true })
           setAppState({ type: 'UpdateForwardMessageContent', payload: message })
+          setAppState({ type: 'updateSideComponent', payload: { visible: true, type: 'showForWardModal' } });
         },
       });
       defaultOptions.push(myView);
@@ -264,7 +262,6 @@ export const CometChatMessages = (props: MessagesViewProps) => {
           </div>
         </div>
       )}
-      <ForwardMessageModal />
     </div>
   );
 };

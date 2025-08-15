@@ -1,22 +1,22 @@
 import { AppContext } from "@/CometChat/context/AppContext";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import { CometChatAvatar, CometChatGroups } from "@cometchat/chat-uikit-react";
+import { CometChatAvatar, CometChatButton, CometChatGroups } from "@cometchat/chat-uikit-react";
 import { useContext, useState } from "react"
 import { CometChat } from "@cometchat/chat-sdk-javascript";
-import { Button } from "@/components/ui/button";
-import { Loader2Icon } from "lucide-react";
+import closeIcon from '../../assets/close2x.svg';
 
 const GetItemView = ({ group }: { group: CometChat.Group }) => {
     const { appState } = useContext(AppContext);
+
     const [loading, setLoading] = useState(false)
+    const [success, setSuccess] = useState(false)
+    const [disabled, setDisabled] = useState(false)
+
     const handleForwardMessage = async (group: CometChat.Group) => {
+
         setLoading(true)
+        setDisabled(true)
+        setSuccess(false)
+
         let newMessage;
         const currentUser = await CometChat.getLoggedInUser()
         const originalMessage = appState.forwardMessageContent
@@ -57,9 +57,7 @@ const GetItemView = ({ group }: { group: CometChat.Group }) => {
             })
 
             await CometChat.sendMessage(newMessage);
-
-            // setAppState({ type: 'UpdateShowForwardModal', payload: !appState.showForwardModal })
-
+            setSuccess(true)
         } catch (error) {
             console.log("🚀 ~ handleForwardMessage ~ error:", error)
         }
@@ -67,62 +65,107 @@ const GetItemView = ({ group }: { group: CometChat.Group }) => {
     }
 
     return (
-        <div className="inline-flex justify-between items-center p-3">
-            <div className="inline-flex items-center gap-3">
-                <div>
-                    <CometChatAvatar
-                        image={group?.getIcon()}
-                        name={group?.getName()}
-                    />
-                </div>
-                <div className="flex flex-col gap-0">
-                    <div className="font-semibold">{group.getName()}</div>
-                    <div className="text-sm">{group.getMembersCount()} Members</div>
-                </div>
-            </div>
-            <div className="group-list-item__title-wrapper">
-                <Button
-                    size={"sm"}
-                    variant={"secondary"}
-                    onClick={() => handleForwardMessage(group)}
-                    disabled={loading}
+        <div className="side-component-wrapper" style={{width: '100%'}}>
+            <div 
+                style={{
+                    display: 'inline-flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '10px',
+                    width: '100%'
+                }}
+            >
+                <div 
+                    style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                    }}
                 >
-                    {loading && <Loader2Icon className="animate-spin" />}
-                    <span className="text-[12px]">Chuyển tiếp</span>
-                </Button>
+                    <div>
+                        <CometChatAvatar
+                            image={group?.getIcon()}
+                            name={group?.getName()}
+                        />
+                    </div>
+                    <div 
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 0
+                        }}
+                    >
+                        <div style={{fontWeight: 600, fontSize: '14px'}}>{group.getName()}</div>
+                        <div style={{fontWeight: 300, fontSize: '12px'}}>{group.getMembersCount()} thành viên</div>
+                    </div>
+                </div>
+                <div className="group-list-item__title-wrapper">
+                    <button 
+                        disabled={disabled} 
+                        style={{
+                            padding: '5px',
+                            border: '1px solid #eeeeee',
+                            borderRadius: '5px'
+                        }}
+                        onClick={() => handleForwardMessage(group)}
+                    >
+                        {loading && 
+                            <svg className="CometChatButtonLoading" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        }
+                        {
+                            success &&
+                            <svg xmlns="http://www.w3.org/2000/svg" style={{color: '#3ad300'}} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>
+                        }
+                        {(!loading && !success) && 
+                            <div style={{fontSize: '10px', fontWeight: 400}}>
+                                Chuyển tiếp
+                            </div>
+                        }
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
 export function ForwardMessageModal() {
-    const { appState, setAppState } = useContext(AppContext);
+    const { setAppState } = useContext(AppContext);
 
     const itemViewWrapper = (group: CometChat.Group) => {
         return <GetItemView group={group} />;
     };
 
+    const handleClose = () => {
+        setAppState({ type: 'UpdateShowForwardModal', payload: false })
+        setAppState({ type: 'updateSideComponent', payload: { visible: false, type: '' } });
+    }
+
     return (
-        <Dialog open={appState.showForwardModal} onOpenChange={() => setAppState({ type: 'UpdateShowForwardModal', payload: !appState.showForwardModal })}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Chuyển tiếp tin nhắn</DialogTitle>
-                    <DialogDescription className="hidden">
-                        This action cannot be undone. This will permanently delete your account
-                        and remove your data from our servers.
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogContent className="max-h-[600px] overflow-y-scroll p-0">
-                    <CometChatGroups
-                        searchRequestBuilder={new CometChat.GroupsRequestBuilder()
-                            .setLimit(30)
-                        }
-                        // onItemClick={handleForwardMessage}
-                        showScrollbar={true}
-                        itemView={itemViewWrapper}
+        <div className="cometchat-search-view">
+            <div className="cometchat-search-view__header">
+                <div className="cometchat-search-view__title">
+                    Chuyển tiếp tin nhắn
+                </div>
+                <div className="cometchat-search-view__close-button">
+                    <CometChatButton 
+                        iconURL={closeIcon} 
+                        onClick={handleClose}
                     />
-                </DialogContent>
-            </DialogContent>
-        </Dialog>
+                </div>
+            </div>
+            <div 
+                className="cometchat-search-view__content"
+            >
+                <CometChatGroups
+                    searchRequestBuilder={new CometChat.GroupsRequestBuilder()
+                        .setLimit(100)
+                    }
+                    // onItemClick={handleForwardMessage}
+                    showScrollbar={true}
+                    itemView={itemViewWrapper}
+                    headerView={<></>}
+                />
+            </div>
+        </div>
     )
 }

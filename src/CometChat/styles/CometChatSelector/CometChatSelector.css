@@ -206,7 +206,7 @@
 }
 
 .cometchat-groups .cometchat-list__header {
-    height: 131px;
+    height: auto;
 }
 
 .cometchat-conversations-header {

@@ -29,7 +29,7 @@ const uiKitSettings = new UIKitSettingsBuilder()
 CometChatUIKit.init(uiKitSettings)?.then(() => {
   setupLocalization();
 
-  const UID = "tuan_nguyen"; // Replace with your actual UID
+  const UID = "cong-vu"; // Replace with your actual UID
 
   CometChatUIKit.getLoggedinUser().then((user: CometChat.User | null) => {
     CometChatLocalize.init({

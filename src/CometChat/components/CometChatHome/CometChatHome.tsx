@@ -60,6 +60,7 @@ import { CallLog, CometChatCalls } from '@cometchat/calls-sdk-javascript';
 import { useCometChatContext } from '../../context/CometChatContext';
 import useSystemColorScheme from '../../customHooks';
 import CometChatSearchView from '../CometChatSearchView/CometChatSearchView';
+import { ForwardMessageModal } from '../CometChatMessages/ForwardMessageModal';
 
 interface TabContentProps {
   selectedTab: string;
@@ -584,6 +585,7 @@ function CometChatHome({ defaultUser, defaultGroup }: CometChatHomeProps) {
     };
     const onSearchClicked = () => {
       setAppState({ type: 'updateShowMessagesSearch', payload: true });
+      setAppState({ type: 'updateSideComponent', payload: { visible: true, type: 'showMessageSearchModal' } });
       activeSideComponentRef.current = '';
     };
 
@@ -861,6 +863,7 @@ function CometChatHome({ defaultUser, defaultGroup }: CometChatHomeProps) {
     const onBack = () => {
       setAppState({ type: 'updateShowMessagesSearch', payload: false });
       setAppState({ type: 'updateSideComponentTop', payload: null });
+      setAppState({ type: 'updateSideComponent', payload: { visible: false, type: '' } });
       activeSideComponentRef.current = appState.sideComponent.type;
     };
     const onSearchMessageClicked = async (message: CometChat.BaseMessage, searchKeyword?: string) => {
@@ -894,11 +897,12 @@ function CometChatHome({ defaultUser, defaultGroup }: CometChatHomeProps) {
 
     return (
       <>
-        {appState.sideComponent.visible || appState.showMessagesSearch ? (
+        {appState.sideComponent.visible ? (
           <div
             className={`side-component-wrapper ${appState.threadSearchMessage ? 'side-component-wrapper--threaded' : ''}`}
           >
             <div className="side-component-wrapper__content">
+              {appState.showForwardModal && appState.sideComponent.type == "showForWardModal" && <ForwardMessageModal/>}
               {appState.sideComponent.type == 'user' && user && (
                 <div
                   className={`side-component-wrapper__content-view ${appState.sideComponentTop === 'user' ? 'side-component-wrapper__content-top' : 'side-component-wrapper__content-bottom'}`}
@@ -921,7 +925,7 @@ function CometChatHome({ defaultUser, defaultGroup }: CometChatHomeProps) {
                   <SideComponentThread message={appState.threadedMessage} />
                 </div>
               ) : null}
-              {appState.showMessagesSearch && (
+              {appState.showMessagesSearch && appState.sideComponent.type == "showMessageSearchModal" && (
                 <div
                   className={`side-component-wrapper__content-view ${appState.sideComponentTop === 'search' ? 'side-component-wrapper__content-top' : 'side-component-wrapper__content-bottom'}`}
                 >
@@ -933,6 +937,7 @@ function CometChatHome({ defaultUser, defaultGroup }: CometChatHomeProps) {
                   />
                 </div>
               )}
+              
             </div>
           </div>
         ) : null}
@@ -2147,7 +2152,6 @@ function CometChatHome({ defaultUser, defaultGroup }: CometChatHomeProps) {
             <InformationComponent />
           </div>
         )}
-
         {SideComponentWrapper}
         <CometChatIncomingCall />
         {showToast ? <CometChatToast text={toastTextRef.current} onClose={closeToast} /> : null}
